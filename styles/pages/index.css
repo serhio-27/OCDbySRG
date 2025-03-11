@@ -1,0 +1,265 @@
+/* Базовые настройки */
+:root {
+    --primary-color: #2B7EB5;
+    --secondary-color: #37A7DD;
+    --text-color: #333333;
+    --light-gray: #F5F5F5;
+    --border-radius: 4px;
+    --container-width: 1200px;
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    min-width: 320px;
+}
+
+/* Контейнер */
+.container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Шапка сайта */
+.header {
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 15px 0;
+}
+
+.header__wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo img {
+    height: 60px;
+}
+
+/* Навигация */
+.main-nav__list {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+}
+
+.main-nav__list a {
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 16px;
+    transition: color 0.3s;
+}
+
+.main-nav__list a:hover {
+    color: var(--primary-color);
+}
+
+/* Кнопки */
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: none;
+}
+
+.btn--primary {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.btn--secondary {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+/* Главный экран */
+.hero {
+    padding: 80px 0;
+    background: var(--light-gray);
+    text-align: center;
+}
+
+.hero__title {
+    font-size: 42px;
+    margin-bottom: 20px;
+    color: var(--text-color);
+}
+
+.hero__subtitle {
+    font-size: 20px;
+    margin-bottom: 40px;
+    color: #666;
+}
+
+/* Форма поиска */
+.search-form {
+    max-width: 600px;
+    margin: 0 auto 60px;
+}
+
+.search-form__wrapper {
+    display: flex;
+    gap: 15px;
+}
+
+.search-form__input {
+    flex: 1;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: var(--border-radius);
+    font-size: 16px;
+}
+
+/* Категории */
+.popular-categories {
+    margin-top: 60px;
+}
+
+.popular-categories__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.category-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background: #fff;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    color: var(--text-color);
+    transition: transform 0.3s;
+}
+
+.category-card:hover {
+    transform: translateY(-5px);
+}
+
+/* Преимущества */
+.benefits {
+    padding: 80px 0;
+}
+
+.benefits__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.benefit-card {
+    text-align: center;
+    padding: 30px;
+}
+
+/* Как это работает */
+.how-it-works {
+    padding: 80px 0;
+    background: var(--light-gray);
+}
+
+.steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+/* Подвал */
+.footer {
+    background: #333;
+    color: #fff;
+    padding: 60px 0 20px;
+}
+
+.footer__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.footer__column h4 {
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.footer__column ul {
+    list-style: none;
+}
+
+.footer__column a {
+    color: #fff;
+    text-decoration: none;
+    line-height: 2;
+}
+
+.footer__bottom {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .header__wrapper {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .main-nav__list {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .search-form__wrapper {
+        flex-direction: column;
+    }
+    
+    .hero__title {
+        font-size: 32px;
+    }
+    
+    .hero__subtitle {
+        font-size: 18px;
+    }
+}
+
+/* Доступность */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+}
