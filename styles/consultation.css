@@ -1,0 +1,223 @@
+/* Стили для модального окна */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.consultation-modal {
+    background-color: #fff;
+    margin: 5% auto;
+    padding: 20px;
+    width: 90%;
+    max-width: 800px;
+    height: 80vh;
+    border-radius: 8px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Кнопка закрытия */
+.close {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #666;
+}
+
+.close:hover {
+    color: #000;
+}
+
+/* Остальные стили чата */
+.consultation-header {
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.patient-info {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+/* Стили для контейнера сообщений */
+.chat-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background-color: #f5f5f5;
+}
+
+/* Общие стили для сообщений */
+.message {
+    margin-bottom: 15px;
+    max-width: 70%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    position: relative;
+}
+
+/* Стили для собственных сообщений (справа) */
+.message-own {
+    margin-left: auto;
+    background-color: #2563eb; /* Цвет как у основных кнопок */
+    color: white;
+}
+
+/* Стили для чужих сообщений (слева) */
+.message-other {
+    margin-right: auto;
+    background-color: white;
+    color: #333;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Стили для заголовка сообщения */
+.message-header {
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+.message-own .message-header {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.message-other .message-header {
+    color: #666;
+}
+
+/* Стили для времени сообщения */
+.message-time {
+    font-size: 11px;
+    margin-left: 8px;
+}
+
+.message-own .message-time {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.message-other .message-time {
+    color: #999;
+}
+
+/* Стили для содержимого сообщения */
+.message-content {
+    word-wrap: break-word;
+}
+
+.chat-input {
+    padding: 15px;
+    border-top: 1px solid #ddd;
+    display: flex;
+    gap: 10px;
+    background-color: white;
+}
+
+.chat-input textarea {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    resize: none;
+}
+
+.chat-input button {
+    padding: 10px 20px;
+}
+
+/* Стили для кнопки прикрепления файла */
+.btn-attach {
+    padding: 10px;
+    min-width: 44px;
+}
+
+.btn-attach i {
+    font-size: 1.2em;
+}
+
+/* Стили для сообщения с файлом */
+.message-file {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 5px;
+}
+
+.message-file i {
+    font-size: 1.2em;
+}
+
+.message-file a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+/* Стили для пустого чата */
+.no-messages {
+    text-align: center;
+    color: #666;
+    padding: 20px;
+}
+
+/* Стили для изображений в сообщениях */
+.message-image {
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 8px;
+    margin-top: 8px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.message-image:hover {
+    transform: scale(1.05);
+}
+
+/* Стили для ссылок на файлы */
+.file-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.message-own .file-link {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.file-link i {
+    font-size: 1.2em;
+}
+
+/* Модальное окно для просмотра изображений */
+.image-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.image-modal img {
+    max-width: 90%;
+    max-height: 90vh;
+    object-fit: contain;
+} 

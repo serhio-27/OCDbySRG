@@ -1,0 +1,156 @@
+:root {
+    --primary-color: #0066CC;
+    --primary-hover: #0052CC;
+    --error-color: #D32F2F;
+    --text-color: #333333;
+    --background-color: #F5F5F5;
+    --border-color: #DDD;
+    --white: #FFFFFF;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 20px;
+    color: var(--text-color);
+}
+
+.login-container {
+    max-width: 400px;
+    margin: 40px auto;
+    background: var(--white);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-header h1 {
+    color: var(--primary-color);
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.login-header p {
+    color: var(--text-color);
+    font-size: 16px;
+    margin: 0;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+}
+
+.error {
+    color: var(--error-color);
+    font-size: 14px;
+    margin-top: 5px;
+    display: block;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.remember-me input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+.remember-me label {
+    font-size: 14px;
+    font-weight: normal;
+    margin: 0;
+}
+
+.btn {
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+    margin-bottom: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: var(--primary-hover);
+}
+
+.btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.3);
+}
+
+.links {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.links a {
+    color: var(--primary-color);
+    text-decoration: none;
+    margin: 0 10px;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.links a:hover {
+    text-decoration: underline;
+    color: var(--primary-hover);
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+    .login-container {
+        padding: 20px;
+        margin: 20px;
+    }
+
+    .login-header h1 {
+        font-size: 20px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+    }
+
+    .links a {
+        display: block;
+        margin: 10px 0;
+    }
+}

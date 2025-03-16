@@ -1,0 +1,375 @@
+/* Общие стили */
+:root {
+    --primary-color: #00A6B2;
+    --text-color: #333;
+    --border-radius: 8px;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    min-width: 320px;
+}
+
+/* Шапка сайта */
+.header {
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 15px 0;
+}
+
+.header__wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo img {
+    height: 60px;
+}
+
+/* Навигация */
+.main-nav__list {
+    display: flex;
+    list-style: none;
+    gap: 30px;
+}
+
+.main-nav__list a {
+    color: var(--text-color);
+    text-decoration: none;
+    font-size: 16px;
+    transition: color 0.3s;
+}
+
+.main-nav__list a:hover {
+    color: var(--primary-color);
+}
+
+/* Кнопки */
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: none;
+}
+
+.btn--primary {
+    background: var(--primary-color);
+    color: #fff;
+}
+
+.btn--secondary {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+/* Основной контент */
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin: 40px 0;
+}
+
+.profile-section {
+    background: #fff;
+    padding: 30px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profile-section h2 {
+    margin-bottom: 20px;
+    color: var(--text-color);
+}
+
+/* Форма */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+}
+
+/* Список врачей */
+.doctors-list {
+    display: grid;
+    gap: 20px;
+}
+
+.doctor-card {
+    background: #f9f9f9;
+    padding: 20px;
+    border-radius: var(--border-radius);
+}
+
+/* Подвал */
+.footer {
+    background: #333;
+    color: #fff;
+    padding: 60px 0 20px;
+}
+
+.footer__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 40px;
+    margin-bottom: 40px;
+}
+
+.footer__column h4 {
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+.footer__column ul {
+    list-style: none;
+}
+
+.footer__column a {
+    color: #fff;
+    text-decoration: none;
+    line-height: 2;
+}
+
+.footer__bottom {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* История приёмов */
+.appointments-list {
+    display: grid;
+    gap: 20px;
+}
+
+.appointment-card {
+    background: #fff;
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+}
+
+.appointment-card:hover {
+    transform: translateY(-2px);
+}
+
+.appointment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.appointment-date {
+    color: #666;
+    font-size: 14px;
+}
+
+.appointment-date i {
+    margin-right: 5px;
+    margin-left: 10px;
+    color: var(--primary-color);
+}
+
+.appointment-date i:first-child {
+    margin-left: 0;
+}
+
+.appointment-status {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.status-pending {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.status-confirmed {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.status-completed {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-cancelled {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.appointment-doctor {
+    margin-bottom: 15px;
+}
+
+.appointment-doctor h4 {
+    margin: 0 0 5px 0;
+    color: var(--text-color);
+}
+
+.appointment-doctor .specialization {
+    color: #666;
+    font-size: 14px;
+}
+
+.appointment-details {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: var(--border-radius);
+    margin-top: 15px;
+}
+
+.appointment-details h4 {
+    margin: 0 0 5px 0;
+    color: var(--text-color);
+}
+
+.appointment-details p {
+    margin: 0;
+    color: #666;
+}
+
+.no-data {
+    text-align: center;
+    color: #666;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: var(--border-radius);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .profile-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .main-nav__list {
+        display: none;
+    }
+
+    .appointment-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .appointment-status {
+        align-self: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .header__wrapper {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+
+/* Добавляем стили для документов */
+.documents-grid {
+    display: grid;
+    gap: 30px;
+    margin-bottom: 20px;
+}
+
+.document-section {
+    background: var(--accent-color);
+    padding: 20px;
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+}
+
+.document-section:hover {
+    transform: translateY(-2px);
+}
+
+.document-section h3 {
+    color: var(--primary-color);
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--light-gray);
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 166, 178, 0.1);
+}
+
+.form-group input::placeholder {
+    color: #999;
+}
+
+/* Стили для кнопки сохранения */
+#documentsForm .btn--primary {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 200px;
+}
+
+/* Адаптивность */
+@media (min-width: 768px) {
+    .documents-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 767px) {
+    .document-section {
+        padding: 15px;
+    }
+    
+    .document-section h3 {
+        font-size: 16px;
+    }
+    
+    #documentsForm .btn--primary {
+        max-width: 100%;
+    }
+} 
