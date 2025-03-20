@@ -1,2 +1,3 @@
 # OCDbySRG
 diplomka
+aloga
