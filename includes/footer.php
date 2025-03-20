@@ -29,8 +29,8 @@
             <div class="footer__column">
                 <h4>Контакты</h4>
                 <ul>
-                    <li><a href="tel:+79001234567">+7 (900) 123-45-67</a></li>
-                    <li><a href="mailto:CRBKarasukOnline@mail.ru">Email: CRBKarasukOnline@mail.ru</a></li>
+                    <li><a href="tel:+79001234567">+7 (38355) 33118</a></li>
+                    <li><a href="mailto:CRBKarasukOnline@mail.ru">Email: karasukcrb@nso.ru</a></li>
                     <li>
                         <div class="social-links">
                             <a href="#" class="social-link"><i class="fab fa-vk" aria-hidden="true"></i></a>

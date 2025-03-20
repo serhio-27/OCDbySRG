@@ -1,3 +1,2 @@
 # OCDbySRG
 diplomka
-h
