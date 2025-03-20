@@ -102,13 +102,14 @@ $doctors = $stmt->fetchAll();
                                 <i class="fas fa-user-md"></i>
                             </div>
                             <div class="doctor-info">
-                                <h3><?= htmlspecialchars($doctor['surname'] . ' ' . 
-                                                       $doctor['name'] . ' ' . 
-                                                       $doctor['patronymic']) ?></h3>
+                                <h3>
+                                    <a href="doctor.php?id=<?= $doctor['id'] ?>">
+                                        <?= htmlspecialchars($doctor['surname'] . ' ' . $doctor['name'] . ' ' . $doctor['patronymic']) ?>
+                                    </a>
+                                </h3>
                                 <p class="specialization"><?= htmlspecialchars($doctor['specialization']) ?></p>
                                 <?php if (isset($_SESSION['token'])): ?>
-                                    <a href="appointment.php?doctor_id=<?= $doctor['id'] ?>" 
-                                       class="btn btn--primary">Записаться на приём</a>
+                                    <a href="appointment.php?doctor_id=<?= $doctor['id'] ?>" class="btn btn--primary">Записаться на приём</a>
                                 <?php else: ?>
                                     <div class="auth-prompt">
                                         <p>Для записи на приём необходимо 

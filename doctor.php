@@ -2,6 +2,9 @@
 session_start();
 include_once('api/db.php');
 
+// Получаем ID врача из URL
+$doctorId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
 // Проверка авторизации
 if (!isset($_SESSION['token'])) {
     header('Location: login.php');

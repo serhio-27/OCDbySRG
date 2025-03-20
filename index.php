@@ -55,19 +55,19 @@ include_once('api/db.php');
                 <div class="popular-categories">
                     <h2 class="popular-categories__title">Популярные специальности</h2>
                     <div class="popular-categories__grid">
-                        <a href="/specialists/therapist" class="category-card">
+                        <a href="doctors.php?search=Терапевт" class="category-card">
                             <i class="fa fa-stethoscope"></i>
                             <span>Терапевт</span>
                         </a>
-                        <a href="/specialists/pediatrician" class="category-card">
+                        <a href="doctors.php?search=Педиатр" class="category-card">
                             <i class="fa fa-child"></i>
                             <span>Педиатр</span>
                         </a>
-                        <a href="/specialists/psychologist" class="category-card">
+                        <a href="doctors.php?search=Психолог" class="category-card">
                             <i class="fa fa-brain"></i>
                             <span>Психолог</span>
                         </a>
-                        <a href="/specialists/dermatologist" class="category-card">
+                        <a href="doctors.php?search=Дерматолог" class="category-card">
                             <i class="fa fa-allergies"></i>
                             <span>Дерматолог</span>
                         </a>
