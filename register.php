@@ -47,15 +47,15 @@ function showError($field){
                 
                 <nav class="main-nav">
                     <ul class="main-nav__list">
-                        <li><a href="/specialists">Врачи</a></li>
-                        <li><a href="/services">Услуги</a></li>
-                        <li><a href="/prices">Прайс-листы</a></li>
-                        <li><a href="/about">О нас</a></li>
+                    <li><a href="index.php">Главная</a></li>
+                    <li><a href="departments.php">Отделения</a></li>
+                    <li><a href="doctors.php">Врачи</a></li>
+                    <li><a href="contacts.php">Контакты</a></li>
                     </ul>
                 </nav>
 
                 <div class="user-actions">
-                    <a href="/login" class="btn btn--primary">Войти</a>
+                    <a href="login.php" class="btn btn--primary">Войти</a>
                 </div>
             </div>
         </div>
