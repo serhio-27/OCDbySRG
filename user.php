@@ -159,21 +159,23 @@ $appointments = $stmt->fetchAll();
             </div>
 
             <!-- Правая колонка - Список врачей -->
-            <div class="profile-section">
-                <h2>Доступные врачи</h2>
-                <div class="doctors-list">
-                    <?php foreach ($doctors as $doctor): ?>
-                    <div class="doctor-card">
-                        <h3><?= htmlspecialchars($doctor['surname'] . ' ' . $doctor['name'] . ' ' . $doctor['patronymic']) ?></h3>
-                        <p class="specialization"><?= htmlspecialchars($doctor['specialization']) ?></p>
-                        <button class="btn btn--secondary" 
-                                onclick="showDoctorInfo(<?= $doctor['id'] ?>)">
-                            Подробнее
-                        </button>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
+<div class="profile-section">
+    <h2>Доступные врачи</h2>
+    <div class="doctors-list">
+        <?php $visibleDoctors = array_slice($doctors, 0, 3); ?>
+        <?php foreach ($visibleDoctors as $doctor): ?>
+        <div class="doctor-card">
+            <h3><?= htmlspecialchars($doctor['surname'] . ' ' . $doctor['name'] . ' ' . $doctor['patronymic']) ?></h3>
+            <p class="specialization"><?= htmlspecialchars($doctor['specialization']) ?></p>
+            <button class="btn btn--secondary" 
+                    onclick="showDoctorInfo(<?= $doctor['id'] ?>)">
+                Подробнее
+            </button>
+        </div>
+        <?php endforeach; ?>
+        <button class="btn btn--primary" onclick="showAllDoctors()">Показать всех</button>
+    </div>
+</div>
 
             <!-- После блока doctors-list -->
             <div class="profile-section">
@@ -273,7 +275,23 @@ $appointments = $stmt->fetchAll();
                                        placeholder="000-000-000 00">
                             </div>
                         </div>
-                    </div>
+                         <!-- ОМС -->
+            <div class="document-section">
+                <h3>ОМС</h3>
+                <div class="form-group">
+                    <label>Номер полиса ОМС</label>
+                    <input type="text" name="oms_number" 
+                           value="<?= htmlspecialchars($documents['oms_number'] ?? '') ?>" 
+                           placeholder="0000000000000000" maxlength="16">
+                </div>
+                <div class="form-group">
+                    <label>Страховая компания</label>
+                    <input type="text" name="oms_insurance_company" 
+                           value="<?= htmlspecialchars($documents['oms_insurance_company'] ?? '') ?>" 
+                           placeholder="Название компании">
+                </div>
+            </div>
+        </div>
                     <button type="submit" class="btn btn--primary">Сохранить документы</button>
                 </form>
             </div>
@@ -633,9 +651,26 @@ $appointments = $stmt->fetchAll();
     document.querySelector('input[name="passport_number"]').addEventListener('input', function(e) {
         e.target.value = e.target.value.replace(/\D/g, '').substr(0, 6);
     });
+    // Маска для номера паспорта
     </script>
 
     <script src="js/modal.js"></script>
-    <script src="js/patient-consultation.js"></script>
+    <script src="js/patient-consultation.js"></script> 
+    <script>
+        //показ всех врачей
+function showAllDoctors() {
+    const doctorsList = document.querySelector('.doctors-list');
+    doctorsList.innerHTML = `<?php foreach ($doctors as $doctor): ?>
+        <div class="doctor-card">
+            <h3><?= htmlspecialchars($doctor['surname'] . ' ' . $doctor['name'] . ' ' . $doctor['patronymic']) ?></h3>
+            <p class="specialization"><?= htmlspecialchars($doctor['specialization']) ?></p>
+            <button class="btn btn--secondary" 
+                    onclick="showDoctorInfo(<?= $doctor['id'] ?>)">
+                Подробнее
+            </button>
+        </div>
+        <?php endforeach; ?>`;
+}
+</script>
 </body>
 </html>
