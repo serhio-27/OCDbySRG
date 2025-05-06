@@ -1,23 +1,27 @@
 // Функция для закрытия модального окна
 function closeModal() {
     const modal = document.getElementById('doctorModal');
-    modal.style.display = 'none';
-    
-    // Очищаем данные формы при закрытии
-    if (app) {
-        app.selectedDate = null;
-        app.selectedTime = null;
-        app.complaint = '';
+    if (modal) {
+        modal.style.display = 'none';
+        
+        // Очищаем данные формы при закрытии
+        if (app) {
+            app.resetForm();
+        }
     }
 }
 
 // Инициализация модального окна
 document.addEventListener('DOMContentLoaded', function() {
     const modal = document.getElementById('doctorModal');
+    if (!modal) return;
+
     const closeBtn = modal.querySelector('.close');
     
     // Закрытие по клику на крестик
-    closeBtn.addEventListener('click', closeModal);
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeModal);
+    }
     
     // Закрытие по клику вне модального окна
     window.addEventListener('click', function(event) {
@@ -37,103 +41,13 @@ document.addEventListener('DOMContentLoaded', function() {
 // Функция открытия модального окна
 function showDoctorInfo(doctorId) {
     const modal = document.getElementById('doctorModal');
-    modal.style.display = 'block';
-    app.loadDoctorInfo(doctorId);
-}
-
-// Функция для открытия модального окна настроек доступности
-function openAccessibilitySettings() {
-    const modal = document.getElementById('accessibilityModal');
-    modal.style.display = 'block';
-}
-
-// Инициализация Vue приложения для настроек доступности
-const accessibilityApp = Vue.createApp({
-    data() {
-        return {
-            fontSizes: [
-                { value: 'normal', preview: '16px' },
-                { value: 'large', preview: '20px' },
-                { value: 'x-large', preview: '24px' },
-                { value: 'xx-large', preview: '28px' }
-            ],
-            letterSpacings: [
-                { value: 'normal', label: 'обычный' },
-                { value: 'increased', label: 'увеличенный' },
-                { value: 'large', label: 'большой' }
-            ],
-            currentSettings: {
-                fontSize: 'normal',
-                letterSpacing: 'normal'
-            }
+    if (modal) {
+        modal.style.display = 'block';
+        if (app) {
+            app.loadDoctorInfo(doctorId);
         }
-    },
-    methods: {
-        closeModal() {
-            const modal = document.getElementById('accessibilityModal');
-            modal.style.display = 'none';
-        },
-        setFontSize(size) {
-            this.currentSettings.fontSize = size;
-        },
-        setLetterSpacing(spacing) {
-            this.currentSettings.letterSpacing = spacing;
-        },
-        applySettings() {
-            document.body.className = `font-${this.currentSettings.fontSize} spacing-${this.currentSettings.letterSpacing}`;
-            localStorage.setItem('accessibilitySettings', JSON.stringify(this.currentSettings));
-            this.closeModal();
-        },
-        resetSettings() {
-            this.currentSettings = {
-                fontSize: 'normal',
-                letterSpacing: 'normal'
-            };
-            document.body.className = '';
-            localStorage.removeItem('accessibilitySettings');
-            this.closeModal();
-        },
-        loadSavedSettings() {
-            const saved = localStorage.getItem('accessibilitySettings');
-            if (saved) {
-                this.currentSettings = JSON.parse(saved);
-                this.applySettings();
-            }
-        }
-    },
-    mounted() {
-        this.loadSavedSettings();
-        
-        // Добавляем обработчики закрытия модального окна
-        const modal = document.getElementById('accessibilityModal');
-        const closeBtn = modal.querySelector('.close');
-        
-        // Закрытие по клику на крестик
-        closeBtn.addEventListener('click', this.closeModal);
-        
-        // Закрытие по клику вне модального окна
-        window.addEventListener('click', (event) => {
-            if (event.target === modal) {
-                this.closeModal();
-            }
-        });
-        
-        // Закрытие по нажатию Escape
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && modal.style.display === 'block') {
-                this.closeModal();
-            }
-        });
     }
-}).mount('#accessibilityModal');
-
-// Добавляем обработчик для кнопки открытия настроек
-document.addEventListener('DOMContentLoaded', function() {
-    const accessibilityBtn = document.querySelector('.btn--accessibility');
-    if (accessibilityBtn) {
-        accessibilityBtn.addEventListener('click', openAccessibilitySettings);
-    }
-});
+}
 
 // Создаем и монтируем Vue приложение
 const app = Vue.createApp({
@@ -183,14 +97,22 @@ const app = Vue.createApp({
             }
             
             return days;
+        },
+        availableTimeSlots() {
+            if (!this.selectedDate) return [];
+            
+            return this.timeSlots.filter(time => {
+                return !this.bookedSlots.some(slot => 
+                    slot.appointment_date === this.selectedDate && 
+                    slot.appointment_time === time + ':00'
+                );
+            });
+        },
+        canSubmit() {
+            return this.selectedDate && this.selectedTime && this.complaint.trim();
         }
     },
     methods: {
-        closeModal() {
-            const modal = document.getElementById('doctorModal');
-            modal.style.display = 'none';
-            this.resetForm();
-        },
         resetForm() {
             this.doctor = null;
             this.selectedDate = null;
@@ -203,50 +125,75 @@ const app = Vue.createApp({
                 const response = await fetch(`api/getDoctorInfo.php?id=${doctorId}`);
                 const data = await response.json();
                 this.doctor = data;
-                this.loadBookedSlots();
+                await this.loadBookedSlots();
             } catch (error) {
                 console.error('Ошибка загрузки информации о враче:', error);
             }
-        }
-    },
-    mounted() {
-        // Инициализация обработчиков в mounted
-        const modal = document.getElementById('doctorModal');
-        const closeBtn = document.querySelector('#doctorModal .close');
-        
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => this.closeModal());
-        }
-        
-        window.addEventListener('click', (event) => {
-            if (event.target === modal) {
-                this.closeModal();
+        },
+        async loadBookedSlots() {
+            if (!this.doctor) return;
+            
+            try {
+                const response = await fetch(`api/getDoctorSchedule.php?doctor_id=${this.doctor.id}`);
+                const data = await response.json();
+                this.bookedSlots = data.booked_slots;
+            } catch (error) {
+                console.error('Ошибка загрузки расписания:', error);
             }
-        });
-        
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && modal.style.display === 'block') {
-                this.closeModal();
+        },
+        prevMonth() {
+            this.currentDate = new Date(this.currentDate.getFullYear(), 
+                                      this.currentDate.getMonth() - 1);
+        },
+        nextMonth() {
+            this.currentDate = new Date(this.currentDate.getFullYear(), 
+                                      this.currentDate.getMonth() + 1);
+        },
+        isDateAvailable(date) {
+            if (!date) return false;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            return new Date(date) >= today;
+        },
+        selectDate(date) {
+            if (this.isDateAvailable(date)) {
+                this.selectedDate = date;
+                this.selectedTime = null;
             }
-        });
+        },
+        selectTime(time) {
+            this.selectedTime = time;
+        },
+        async submitAppointment() {
+            if (!this.canSubmit) return;
+
+            const formData = new FormData();
+            formData.append('doctor_id', this.doctor.id);
+            formData.append('appointment_date', this.selectedDate);
+            formData.append('appointment_time', this.selectedTime);
+            formData.append('complaint', this.complaint);
+
+            try {
+                const response = await fetch('api/createAppointment.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Запись успешно создана');
+                    closeModal();
+                    location.reload();
+                } else {
+                    alert(result.error || 'Ошибка при создании записи');
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при создании записи');
+            }
+        }
     }
 }).mount('#doctorModal');
 
 // Глобальная функция для открытия модального окна
-window.showDoctorInfo = function(doctorId) {
-    const modal = document.getElementById('doctorModal');
-    modal.style.display = 'block';
-    app.loadDoctorInfo(doctorId);
-}
-
-// Удаляем дублирующиеся обработчики событий
-document.removeEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('doctorModal');
-    const closeBtn = modal.querySelector('.close');
-    closeBtn.removeEventListener('click', closeModal);
-    window.removeEventListener('click', function(event) {
-        if (event.target === modal) {
-            closeModal();
-        }
-    });
-});
+window.showDoctorInfo = showDoctorInfo;

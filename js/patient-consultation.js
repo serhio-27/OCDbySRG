@@ -17,6 +17,11 @@ const consultationApp = Vue.createApp({
             return this.newMessage.trim() || this.selectedFile;
         }
     },
+    mounted() {
+        if (window.currentUserId) {
+            this.currentUserId = window.currentUserId;
+        }
+    },
     methods: {
         async loadDoctorInfo() {
             try {

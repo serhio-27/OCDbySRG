@@ -34,15 +34,19 @@ const accessibilityApp = Vue.createApp({
         setLetterSpacing(spacing) {
             this.currentSettings.letterSpacing = spacing;
         },
+        toggleHighContrast() {
+            this.currentSettings.highContrast = !this.currentSettings.highContrast;
+        },
         applySettings() {
-            document.body.className = `font-${this.currentSettings.fontSize} spacing-${this.currentSettings.letterSpacing}`;
+            document.body.className = `font-${this.currentSettings.fontSize} spacing-${this.currentSettings.letterSpacing}` + (this.currentSettings.highContrast ? ' high-contrast' : '');
             localStorage.setItem('accessibilitySettings', JSON.stringify(this.currentSettings));
             this.closeModal();
         },
         resetSettings() {
             this.currentSettings = {
                 fontSize: 'normal',
-                letterSpacing: 'normal'
+                letterSpacing: 'normal',
+                highContrast: false
             };
             document.body.className = '';
             localStorage.removeItem('accessibilitySettings');

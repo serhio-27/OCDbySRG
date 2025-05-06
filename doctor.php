@@ -413,6 +413,8 @@ $past_appointments = $stmt->fetchAll();
             consultationApp.appointmentId = appointmentId;
             consultationApp.loadMessages();
         }
+
+        window.currentUserId = <?= (int)$doctor['id'] ?>;
     </script>
 
     <!-- Модальное окно для консультации (добавить перед закрывающим тегом body) -->

@@ -68,6 +68,7 @@ $appointments = $stmt->fetchAll();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="styles/modal.css">
     <link rel="stylesheet" href="styles/consultation.css">
+    <link rel="stylesheet" href="styles/accessibility.css">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
         .modal-content {
@@ -117,6 +118,9 @@ $appointments = $stmt->fetchAll();
                     </ul>
                 </nav>
                 <div class="auth-buttons">
+                    <button class="btn btn--accessibility" type="button">
+                        <i class="fa-solid fa-universal-access"></i> Версия для слабовидящих
+                    </button>
                     <a href="api/logout.php" class="btn btn--secondary">
                         <i class="fas fa-sign-out-alt"></i> Выйти
                     </a>
@@ -472,152 +476,42 @@ $appointments = $stmt->fetchAll();
         </div>
     </div>
 
+    <!-- Модальное окно для настроек доступности -->
+    <div id="accessibilityModal" class="modal">
+        <div class="modal-content">
+            <div id="accessibilityApp">
+                <span class="close" @click="closeModal" title="Закрыть">&times;</span>
+                <h2>Настройки для слабовидящих</h2>
+                <div class="form-group">
+                    <label>Размер шрифта:</label>
+                    <div class="font-size-options">
+                        <button v-for="size in fontSizes" :key="size.value" :class="['font-size-btn', {selected: currentSettings.fontSize === size.value}]" @click="setFontSize(size.value)">
+                            {{ size.preview }}
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Межбуквенный интервал:</label>
+                    <div class="letter-spacing-options">
+                        <button v-for="spacing in letterSpacings" :key="spacing.value" :class="['letter-spacing-btn', {selected: currentSettings.letterSpacing === spacing.value}]" @click="setLetterSpacing(spacing.value)">
+                            {{ spacing.label }}
+                        </button>
+                    </div>
+                </div>
+                <div class="accessibility-actions">
+                    <button class="btn btn--primary" @click="applySettings">Применить</button>
+                    <button class="btn btn--secondary" @click="resetSettings">Сбросить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
     // Маска для СНИЛС
     document.querySelector('input[name="snils"]').addEventListener('input', function(e) {
         let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,3})(\d{0,2})/);
         e.target.value = !x[2] ? x[1] : x[1] + '-' + x[2] + (x[3] ? '-' + x[3] : '') + (x[4] ? ' ' + x[4] : '');
     });
-
-    // Инициализация Vue приложения
-    const { createApp } = Vue;
-
-    const app = createApp({
-        data() {
-            return {
-                doctor: null,
-                currentDate: new Date(),
-                selectedDate: null,
-                selectedTime: null,
-                complaint: '',
-                bookedSlots: [],
-                daysOfWeek: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
-                timeSlots: ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', 
-                           '14:00', '14:30', '15:00', '15:30', '16:00', '16:30']
-            }
-        },
-        computed: {
-            currentMonthYear() {
-                return this.currentDate.toLocaleString('ru', { month: 'long', year: 'numeric' });
-            },
-            calendarDays() {
-                // Логика формирования дней календаря
-                const days = [];
-                const year = this.currentDate.getFullYear();
-                const month = this.currentDate.getMonth();
-                
-                const firstDay = new Date(year, month, 1);
-                const lastDay = new Date(year, month + 1, 0);
-                
-                // Добавляем пустые дни в начало
-                let firstDayOfWeek = firstDay.getDay() || 7;
-                for (let i = 1; i < firstDayOfWeek; i++) {
-                    days.push({ date: null, dayOfMonth: '' });
-                }
-                
-                // Добавляем дни месяца
-                for (let i = 1; i <= lastDay.getDate(); i++) {
-                    const date = new Date(year, month, i);
-                    days.push({
-                        date: date.toISOString().split('T')[0],
-                        dayOfMonth: i
-                    });
-                }
-                
-                return days;
-            },
-            availableTimeSlots() {
-                if (!this.selectedDate) return [];
-                
-                return this.timeSlots.filter(time => {
-                    return !this.bookedSlots.some(slot => 
-                        slot.appointment_date === this.selectedDate && 
-                        slot.appointment_time === time + ':00'
-                    );
-                });
-            },
-            canSubmit() {
-                return this.selectedDate && this.selectedTime && this.complaint.trim();
-            }
-        },
-        methods: {
-            async loadDoctorInfo(doctorId) {
-                try {
-                    const response = await fetch(`api/getDoctorInfo.php?id=${doctorId}`);
-                    this.doctor = await response.json();
-                    this.loadBookedSlots();
-                } catch (error) {
-                    console.error('Ошибка загрузки информации о враче:', error);
-                }
-            },
-            async loadBookedSlots() {
-                try {
-                    const response = await fetch(`api/getDoctorSchedule.php?doctor_id=${this.doctor.id}`);
-                    const data = await response.json();
-                    this.bookedSlots = data.booked_slots;
-                } catch (error) {
-                    console.error('Ошибка загрузки расписания:', error);
-                }
-            },
-            prevMonth() {
-                this.currentDate = new Date(this.currentDate.getFullYear(), 
-                                          this.currentDate.getMonth() - 1);
-            },
-            nextMonth() {
-                this.currentDate = new Date(this.currentDate.getFullYear(), 
-                                          this.currentDate.getMonth() + 1);
-            },
-            isDateAvailable(date) {
-                if (!date) return false;
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                return new Date(date) >= today;
-            },
-            selectDate(date) {
-                if (this.isDateAvailable(date)) {
-                    this.selectedDate = date;
-                    this.selectedTime = null;
-                }
-            },
-            selectTime(time) {
-                this.selectedTime = time;
-            },
-            async submitAppointment() {
-                if (!this.canSubmit) return;
-
-                const formData = new FormData();
-                formData.append('doctor_id', this.doctor.id);
-                formData.append('appointment_date', this.selectedDate);
-                formData.append('appointment_time', this.selectedTime);
-                formData.append('complaint', this.complaint);
-
-                try {
-                    const response = await fetch('api/createAppointment.php', {
-                        method: 'POST',
-                        body: formData
-                    });
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        alert('Запись успешно создана');
-                        location.reload();
-                    } else {
-                        alert(result.error || 'Ошибка при создании записи');
-                    }
-                } catch (error) {
-                    console.error('Ошибка:', error);
-                    alert('Произошла ошибка при создании записи');
-                }
-            }
-        }
-    }).mount('#doctorModal');
-
-    // Обновляем функцию показа модального окна
-    function showDoctorInfo(doctorId) {
-        const modal = document.getElementById('doctorModal');
-        modal.style.display = 'block';
-        app.loadDoctorInfo(doctorId);
-    }
 
     document.getElementById('documentsForm').addEventListener('submit', function(e) {
         e.preventDefault();
@@ -651,26 +545,29 @@ $appointments = $stmt->fetchAll();
     document.querySelector('input[name="passport_number"]').addEventListener('input', function(e) {
         e.target.value = e.target.value.replace(/\D/g, '').substr(0, 6);
     });
-    // Маска для номера паспорта
     </script>
 
+    <script>
+        window.currentUserId = <?= (int)$user['id'] ?>;
+    </script>
     <script src="js/modal.js"></script>
-    <script src="js/patient-consultation.js"></script> 
+    <script src="js/patient-consultation.js"></script>
+    <script src="js/accessibility.js"></script>
     <script>
         //показ всех врачей
-function showAllDoctors() {
-    const doctorsList = document.querySelector('.doctors-list');
-    doctorsList.innerHTML = `<?php foreach ($doctors as $doctor): ?>
-        <div class="doctor-card">
-            <h3><?= htmlspecialchars($doctor['surname'] . ' ' . $doctor['name'] . ' ' . $doctor['patronymic']) ?></h3>
-            <p class="specialization"><?= htmlspecialchars($doctor['specialization']) ?></p>
-            <button class="btn btn--secondary" 
-                    onclick="showDoctorInfo(<?= $doctor['id'] ?>)">
-                Подробнее
-            </button>
-        </div>
-        <?php endforeach; ?>`;
-}
-</script>
+        function showAllDoctors() {
+            const doctorsList = document.querySelector('.doctors-list');
+            doctorsList.innerHTML = `<?php foreach ($doctors as $doctor): ?>
+                <div class="doctor-card">
+                    <h3><?= htmlspecialchars($doctor['surname'] . ' ' . $doctor['name'] . ' ' . $doctor['patronymic']) ?></h3>
+                    <p class="specialization"><?= htmlspecialchars($doctor['specialization']) ?></p>
+                    <button class="btn btn--secondary" 
+                            onclick="showDoctorInfo(<?= $doctor['id'] ?>)">
+                        Подробнее
+                    </button>
+                </div>
+                <?php endforeach; ?>`;
+        }
+    </script>
 </body>
 </html>
