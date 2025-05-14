@@ -224,7 +224,12 @@ $completedAppointments = $stmt->fetchAll();
 
             <!-- История приёмов -->
             <div class="profile-section">
-                <h2>История приёмов</h2>
+                <div class="section-header">
+                    <h2>История приёмов</h2>
+                    <button class="btn btn--primary" onclick="openStatisticsModal()">
+                        <i class="fas fa-chart-bar"></i> Статистика
+                    </button>
+                </div>
                 <div class="appointments-list history">
                     <?php if (empty($completedAppointments)): ?>
                         <p class="no-data">История приёмов пуста</p>
@@ -256,6 +261,71 @@ $completedAppointments = $stmt->fetchAll();
             </div>
         </div>
     </main>
+
+    <!-- Модальное окно статистики -->
+    <div id="statisticsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Статистика приёмов</h2>
+                <button class="close-button" onclick="closeStatisticsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="statistics-table-container">
+                <table class="statistics-table">
+                    <thead>
+                        <tr>
+                            <th>№</th>
+                            <th>Дата проведения</th>
+                            <th>ФИО пациента</th>
+                            <th>Обращение</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($completedAppointments as $index => $appointment): ?>
+                            <tr>
+                                <td><?= $index + 1 ?></td>
+                                <td><?= date('d.m.Y H:i', strtotime($appointment['appointment_date'])) ?></td>
+                                <td><?= htmlspecialchars($appointment['patient_surname'] . ' ' . $appointment['patient_name']) ?></td>
+                                <td><?= htmlspecialchars($appointment['complaint']) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <div class="statistics-summary">
+                    <div class="summary-item">
+                        <i class="fas fa-clipboard-list"></i>
+                        <div class="summary-details">
+                            <span class="summary-label">Общее количество консультаций:</span>
+                            <span class="summary-value"><?= count($completedAppointments) ?></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="report-section">
+                    <button class="btn btn--secondary" onclick="toggleDatePicker()">
+                        <i class="fas fa-file-pdf"></i> Сформировать отчет
+                    </button>
+                    <div id="datePicker" class="date-picker" style="display: none;">
+                        <div class="date-inputs">
+                            <div class="form-group">
+                                <label>Дата от:</label>
+                                <input type="date" id="startDate" onchange="checkDates()">
+                            </div>
+                            <div class="form-group">
+                                <label>Дата до:</label>
+                                <input type="date" id="endDate" onchange="checkDates()">
+                            </div>
+                        </div>
+                        <button id="generateReport" class="btn btn--primary" onclick="generatePdfReport()" disabled>
+                            Сформировать
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Подвал -->
     <?php include 'includes/footer.php'; ?>
@@ -329,6 +399,71 @@ $completedAppointments = $stmt->fetchAll();
                       }
                   });
             }
+        }
+
+        // Функции для работы с модальным окном статистики
+        function openStatisticsModal() {
+            document.getElementById('statisticsModal').style.display = 'block';
+        }
+
+        function closeStatisticsModal() {
+            document.getElementById('statisticsModal').style.display = 'none';
+        }
+
+        // Закрытие модального окна при клике вне его области
+        window.onclick = function(event) {
+            const statisticsModal = document.getElementById('statisticsModal');
+            if (event.target == statisticsModal) {
+                statisticsModal.style.display = 'none';
+            }
+        }
+
+        // Функции для работы с отчетами
+        function toggleDatePicker() {
+            const datePicker = document.getElementById('datePicker');
+            datePicker.style.display = datePicker.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function checkDates() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const generateButton = document.getElementById('generateReport');
+            
+            generateButton.disabled = !startDate || !endDate || startDate > endDate;
+        }
+
+        function generatePdfReport() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            // Отправляем запрос на формирование PDF
+            fetch('api/generate_report.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    start_date: startDate,
+                    end_date: endDate,
+                    doctor_id: <?= $doctor['id'] ?>
+                })
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                // Создаем ссылку для скачивания файла
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Отчет_${startDate}_${endDate}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            })
+            .catch(error => {
+                console.error('Ошибка при формировании отчета:', error);
+                alert('Произошла ошибка при формировании отчета');
+            });
         }
 
         window.currentUserId = <?= (int)$doctor['id'] ?>;

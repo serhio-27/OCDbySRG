@@ -1,0 +1,7 @@
+{
+    "name": "crb-karasuk/online",
+    "description": "ЦРБ Карасук Онлайн",
+    "require": {
+        "tecnickcom/tcpdf": "^6.6"
+    }
+} 
