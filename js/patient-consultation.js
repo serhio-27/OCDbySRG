@@ -53,15 +53,15 @@ const consultationApp = Vue.createApp({
         async sendMessage() {
             if (!this.canSendMessage) return;
             
-            const formData = new FormData();
-            formData.append('appointment_id', this.appointmentId);
-            formData.append('message', this.newMessage);
-            
-            if (this.selectedFile) {
-                formData.append('file', this.selectedFile);
-            }
-            
             try {
+                const formData = new FormData();
+                formData.append('appointment_id', this.appointmentId);
+                formData.append('message', this.newMessage.trim());
+                
+                if (this.selectedFile) {
+                    formData.append('file', this.selectedFile);
+                }
+                
                 const response = await fetch('api/sendMessage.php', {
                     method: 'POST',
                     body: formData
@@ -71,8 +71,10 @@ const consultationApp = Vue.createApp({
                 if (result.success) {
                     this.newMessage = '';
                     this.selectedFile = null;
-                    this.$refs.fileInput.value = '';
-                    this.loadMessages();
+                    if (this.$refs.fileInput) {
+                        this.$refs.fileInput.value = '';
+                    }
+                    await this.loadMessages();
                 } else {
                     alert(result.error || 'Ошибка при отправке сообщения');
                 }
@@ -93,6 +95,9 @@ const consultationApp = Vue.createApp({
                 minute: '2-digit'
             });
         },
+        isOwnMessage(message) {
+            return message.sender_id === this.currentUserId;
+        },
         startUpdateInterval() {
             this.updateInterval = setInterval(() => {
                 this.loadMessages();
@@ -109,6 +114,9 @@ const consultationApp = Vue.createApp({
             this.messages = [];
             this.newMessage = '';
             this.doctorInfo = null;
+            this.selectedFile = null;
+            this.showImageModal = false;
+            this.selectedImage = null;
             this.stopUpdateInterval();
         },
         triggerFileUpload() {
@@ -116,14 +124,19 @@ const consultationApp = Vue.createApp({
         },
         handleFileUpload(event) {
             this.selectedFile = event.target.files[0];
-            if (this.selectedFile) {
-                this.sendMessage();
-            }
         },
         isImage(filePath) {
             if (!filePath) return false;
             const ext = filePath.split('.').pop().toLowerCase();
             return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext);
+        },
+        getFileIcon(fileType) {
+            if (!fileType) return 'fas fa-file';
+            if (fileType.startsWith('image/')) return 'fas fa-file-image';
+            if (fileType.includes('pdf')) return 'fas fa-file-pdf';
+            if (fileType.includes('word')) return 'fas fa-file-word';
+            if (fileType.includes('excel')) return 'fas fa-file-excel';
+            return 'fas fa-file';
         },
         getFileName(filePath) {
             if (!filePath) return '';

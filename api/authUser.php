@@ -3,6 +3,9 @@ session_start();
 include_once './db.php';
 
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
+    // Логируем входные данные (только для отладки)
+    error_log('Login attempt - Email: ' . $_POST['email']);
+    
     // Очищаем данные от лишних пробелов
     $formData = array_map('trim', $_POST);
     
@@ -35,11 +38,20 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             $stmt->execute([$formData['email']]);
             $user = $stmt->fetch();
 
+            // Логируем результат поиска пользователя
+            error_log('User found: ' . ($user ? 'Yes' : 'No'));
+            if ($user) {
+                error_log('User type: ' . $user['type']);
+            }
+
             if (!$user) {
                 $errors['email'][] = 'Пользователь не найден';
             } else {
                 // Проверяем пароль
-                if (password_verify($formData['password'], $user['password'])) {
+                $password_verify_result = password_verify($formData['password'], $user['password']);
+                error_log('Password verification result: ' . ($password_verify_result ? 'Success' : 'Failed'));
+                
+                if ($password_verify_result) {
                     // Генерируем токен
                     $token = bin2hex(random_bytes(32));
                     
@@ -54,6 +66,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                     // Сохраняем данные в сессию
                     $_SESSION['token'] = $token;
                     $_SESSION['user_type'] = $user['type'];
+
+                    error_log('Authentication successful. Redirecting to: ' . $user['type']);
 
                     // Перенаправляем в зависимости от типа пользователя
                     switch ($user['type']) {
@@ -74,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 }
             }
         } catch (Exception $e) {
-            error_log($e->getMessage());
+            error_log('Authentication error: ' . $e->getMessage());
             $errors['system'][] = 'Ошибка авторизации';
         }
     }
@@ -82,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     // Если есть ошибки
     if (!empty($errors)) {
         $_SESSION['login-errors'] = $errors;
+        error_log('Login errors: ' . print_r($errors, true));
         header('Location: ../login.php');
         exit;
     }

@@ -32,56 +32,28 @@ $documents = $stmt->fetch();
 
 // Получаем текущие и запланированные приёмы
 $stmt = $db->prepare("
-    SELECT 
-        a.id,
-        a.appointment_date,
-        a.appointment_time,
-        a.status,
-        a.complaint,
-        p.surname as patient_surname,
-        p.name as patient_name,
-        p.patronymic as patient_patronymic,
-        p.phone as patient_phone,
-        CASE 
-            WHEN a.appointment_date > CURRENT_DATE THEN 'future'
-            WHEN a.appointment_date = CURRENT_DATE AND a.appointment_time >= CURRENT_TIME THEN 'today'
-            ELSE 'past'
-        END as time_status
-    FROM appointments a
-    JOIN users p ON a.patient_id = p.id
-    WHERE a.doctor_id = ? 
-    AND a.status IN ('pending', 'confirmed')
-    ORDER BY a.appointment_date ASC, a.appointment_time ASC
+    SELECT a.*, p.surname as patient_surname, p.name as patient_name, p.phone as patient_phone
+    FROM appointments a 
+    JOIN users p ON a.patient_id = p.id 
+    WHERE a.doctor_id = ? AND a.status IN ('pending', 'confirmed') AND p.type = 'patient'
+    ORDER BY a.appointment_date ASC
 ");
 $stmt->execute([$doctor['id']]);
-$upcoming_appointments = $stmt->fetchAll();
+$activeAppointments = $stmt->fetchAll();
 
 // Получаем историю приёмов
 $stmt = $db->prepare("
-    SELECT 
-        a.id,
-        a.appointment_date,
-        a.appointment_time,
-        a.status,
-        a.complaint,
-        p.surname as patient_surname,
-        p.name as patient_name,
-        p.patronymic as patient_patronymic
-    FROM appointments a
-    JOIN users p ON a.patient_id = p.id
-    WHERE a.doctor_id = ? 
-    AND (
-        a.status IN ('completed', 'cancelled')
-        OR a.appointment_date < CURRENT_DATE
-        OR (a.appointment_date = CURRENT_DATE AND a.appointment_time < CURRENT_TIME)
-    )
-    ORDER BY a.appointment_date DESC, a.appointment_time DESC
+    SELECT a.*, p.surname as patient_surname, p.name as patient_name, p.phone as patient_phone
+    FROM appointments a 
+    JOIN users p ON a.patient_id = p.id 
+    WHERE a.doctor_id = ? AND a.status = 'completed' AND p.type = 'patient'
+    ORDER BY a.appointment_date DESC
 ");
 $stmt->execute([$doctor['id']]);
-$past_appointments = $stmt->fetchAll();
+$completedAppointments = $stmt->fetchAll();
 
 // Временно раскомментируйте для отладки
-// var_dump($upcoming_appointments);
+// var_dump($activeAppointments);
 ?>
 
 <!DOCTYPE html>
@@ -209,61 +181,41 @@ $past_appointments = $stmt->fetchAll();
             <div class="profile-section">
                 <h2>Текущие и запланированные приёмы</h2>
                 <div class="appointments-list">
-                    <?php if (empty($upcoming_appointments)): ?>
+                    <?php if (empty($activeAppointments)): ?>
                         <p class="no-data">Нет запланированных приёмов</p>
                     <?php else: ?>
-                        <?php foreach ($upcoming_appointments as $appointment): ?>
+                        <?php foreach ($activeAppointments as $appointment): ?>
                             <div class="appointment-card">
-                                <div class="appointment-header">
-                                    <div class="appointment-date">
-                                        <i class="far fa-calendar-alt"></i>
-                                        <?= date('d.m.Y', strtotime($appointment['appointment_date'])) ?>
-                                        <i class="far fa-clock"></i>
-                                        <?= date('H:i', strtotime($appointment['appointment_time'])) ?>
+                                <div class="appointment-info">
+                                    <div class="date-time">
+                                        <span class="date"><?= date('d.m.Y', strtotime($appointment['appointment_date'])) ?></span>
+                                        <span class="time"><?= date('H:i', strtotime($appointment['appointment_date'])) ?></span>
                                     </div>
-                                    <span class="appointment-status status-<?= strtolower($appointment['status']) ?>">
-                                        <?php
-                                        $statusText = [
-                                            'pending' => 'Ожидает подтверждения',
-                                            'confirmed' => 'Подтверждён'
-                                        ];
-                                        echo $statusText[$appointment['status']] ?? $appointment['status'];
-                                        ?>
-                                    </span>
-                                </div>
-                                <div class="appointment-patient">
-                                    <h4>Пациент:</h4>
-                                    <p><?= htmlspecialchars($appointment['patient_surname'] . ' ' . 
-                                                          $appointment['patient_name'] . ' ' . 
-                                                          $appointment['patient_patronymic']) ?></p>
-                                    <p class="patient-phone">
-                                        <i class="fas fa-phone"></i>
-                                        <?= htmlspecialchars($appointment['patient_phone']) ?>
-                                    </p>
-                                </div>
-                                <?php if (!empty($appointment['complaint'])): ?>
-                                    <div class="appointment-details">
-                                        <div class="complaint">
-                                            <h4>Жалобы:</h4>
-                                            <p><?= htmlspecialchars($appointment['complaint']) ?></p>
-                                        </div>
+                                    <div class="patient-info">
+                                        <h3>Пациент:</h3>
+                                        <p><?= htmlspecialchars($appointment['patient_surname'] . ' ' . $appointment['patient_name']) ?></p>
+                                        <p>Телефон: <?= htmlspecialchars($appointment['patient_phone']) ?></p>
                                     </div>
-                                <?php endif; ?>
-                                <div class="appointment-actions">
-                                    <?php if ($appointment['status'] === 'pending'): ?>
-                                        <button class="btn btn--primary" onclick="confirmAppointment(<?= $appointment['id'] ?>)">
-                                            Подтвердить
-                                        </button>
-                                        <button class="btn btn--secondary" onclick="cancelAppointment(<?= $appointment['id'] ?>)">
-                                            Отменить
-                                        </button>
-                                    <?php endif; ?>
-                                    <?php if ($appointment['status'] === 'confirmed'): ?>
-                                        <button class="btn btn--primary" onclick="startConsultation(<?= $appointment['id'] ?>)">
+                                    <div class="complaints">
+                                        <h3>Жалобы:</h3>
+                                        <p><?= htmlspecialchars($appointment['complaint']) ?></p>
+                                    </div>
+                                    <div class="status">
+                                        <span class="badge <?= $appointment['status'] === 'confirmed' ? 'confirmed' : 'pending' ?>">
+                                            <?= $appointment['status'] === 'confirmed' ? 'Подтверждён' : 'Ожидает подтверждения' ?>
+                                        </span>
+                                    </div>
+                                </div>
+                                <?php if ($appointment['status'] === 'confirmed'): ?>
+                                    <div class="appointment-actions">
+                                        <button class="btn btn--primary" onclick="startAppointment(<?= $appointment['id'] ?>)">
                                             Начать приём
                                         </button>
-                                    <?php endif; ?>
-                                </div>
+                                        <button class="btn btn--secondary" onclick="completeAppointment(<?= $appointment['id'] ?>)">
+                                            Завершить приём
+                                        </button>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -273,43 +225,30 @@ $past_appointments = $stmt->fetchAll();
             <!-- История приёмов -->
             <div class="profile-section">
                 <h2>История приёмов</h2>
-                <div class="appointments-list">
-                    <?php if (empty($past_appointments)): ?>
+                <div class="appointments-list history">
+                    <?php if (empty($completedAppointments)): ?>
                         <p class="no-data">История приёмов пуста</p>
                     <?php else: ?>
-                        <?php foreach ($past_appointments as $appointment): ?>
-                            <div class="appointment-card">
-                                <div class="appointment-header">
-                                    <div class="appointment-date">
-                                        <i class="far fa-calendar-alt"></i>
-                                        <?= date('d.m.Y', strtotime($appointment['appointment_date'])) ?>
-                                        <i class="far fa-clock"></i>
-                                        <?= date('H:i', strtotime($appointment['appointment_time'])) ?>
+                        <?php foreach ($completedAppointments as $appointment): ?>
+                            <div class="appointment-card completed">
+                                <div class="appointment-info">
+                                    <div class="date-time">
+                                        <span class="date"><?= date('d.m.Y', strtotime($appointment['appointment_date'])) ?></span>
+                                        <span class="time"><?= date('H:i', strtotime($appointment['appointment_date'])) ?></span>
                                     </div>
-                                    <span class="appointment-status status-<?= strtolower($appointment['status']) ?>">
-                                        <?php
-                                        $statusText = [
-                                            'completed' => 'Завершён',
-                                            'cancelled' => 'Отменён'
-                                        ];
-                                        echo $statusText[$appointment['status']] ?? $appointment['status'];
-                                        ?>
-                                    </span>
-                                </div>
-                                <div class="appointment-patient">
-                                    <h4>Пациент:</h4>
-                                    <p><?= htmlspecialchars($appointment['patient_surname'] . ' ' . 
-                                                          $appointment['patient_name'] . ' ' . 
-                                                          $appointment['patient_patronymic']) ?></p>
-                                </div>
-                                <?php if (!empty($appointment['complaint'])): ?>
-                                    <div class="appointment-details">
-                                        <div class="complaint">
-                                            <h4>Жалобы:</h4>
-                                            <p><?= htmlspecialchars($appointment['complaint']) ?></p>
-                                        </div>
+                                    <div class="patient-info">
+                                        <h3>Пациент:</h3>
+                                        <p><?= htmlspecialchars($appointment['patient_surname'] . ' ' . $appointment['patient_name']) ?></p>
+                                        <p>Телефон: <?= htmlspecialchars($appointment['patient_phone']) ?></p>
                                     </div>
-                                <?php endif; ?>
+                                    <div class="complaints">
+                                        <h3>Жалобы:</h3>
+                                        <p><?= htmlspecialchars($appointment['complaint']) ?></p>
+                                    </div>
+                                    <div class="status">
+                                        <span class="badge completed">Завершён</span>
+                                    </div>
+                                </div>
                             </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -363,55 +302,33 @@ $past_appointments = $stmt->fetchAll();
         });
 
         // Функции для работы с приёмами
-        function confirmAppointment(appointmentId) {
-            if (confirm('Подтвердить приём?')) {
-                fetch('api/updateAppointmentStatus.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        appointment_id: appointmentId,
-                        status: 'confirmed'
-                    })
-                }).then(response => response.json())
-                  .then(data => {
-                      if (data.success) {
-                          location.reload();
-                      } else {
-                          alert('Ошибка при обновлении статуса');
-                      }
-                  });
-            }
-        }
-
-        function cancelAppointment(appointmentId) {
-            if (confirm('Отменить приём?')) {
-                fetch('api/updateAppointmentStatus.php', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        appointment_id: appointmentId,
-                        status: 'cancelled'
-                    })
-                }).then(response => response.json())
-                  .then(data => {
-                      if (data.success) {
-                          location.reload();
-                      } else {
-                          alert('Ошибка при отмене приёма');
-                      }
-                  });
-            }
-        }
-
-        function startConsultation(appointmentId) {
+        function startAppointment(appointmentId) {
             const modal = document.getElementById('consultationModal');
             modal.style.display = 'block';
             consultationApp.appointmentId = appointmentId;
             consultationApp.loadMessages();
+        }
+
+        function completeAppointment(appointmentId) {
+            if (confirm('Завершить приём?')) {
+                fetch('api/updateAppointmentStatus.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        appointment_id: appointmentId,
+                        status: 'completed'
+                    })
+                }).then(response => response.json())
+                  .then(data => {
+                      if (data.success) {
+                          location.reload();
+                      } else {
+                          alert('Ошибка при завершении приёма');
+                      }
+                  });
+            }
         }
 
         window.currentUserId = <?= (int)$doctor['id'] ?>;
@@ -435,12 +352,29 @@ $past_appointments = $stmt->fetchAll();
                         Начните консультацию
                     </div>
                     <div v-for="message in messages" :key="message.id" 
-                         :class="['message', message.sender_id === currentUserId ? 'message-own' : 'message-other']">
+                         :class="['message', isOwnMessage(message) ? 'message-own' : 'message-other']">
                         <div class="message-header">
                             <span class="message-sender">{{ message.surname }} {{ message.name }}</span>
                             <span class="message-time">{{ formatTime(message.created_at) }}</span>
                         </div>
                         <div class="message-content">{{ message.message }}</div>
+                        <!-- Отображение файла -->
+                        <div v-if="message.file_path" class="message-file">
+                            <!-- Для изображений -->
+                            <img v-if="isImage(message.file_path)" 
+                                 :src="message.file_path" 
+                                 class="message-image"
+                                 @click="openImage(message.file_path)"
+                                 :alt="message.file_original_name">
+                            <!-- Для других файлов -->
+                            <a v-else 
+                               :href="message.file_path" 
+                               class="file-link" 
+                               download>
+                                <i :class="getFileIcon(message.file_type)"></i>
+                                <span>{{ message.file_original_name || getFileName(message.file_path) }}</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 
@@ -449,11 +383,26 @@ $past_appointments = $stmt->fetchAll();
                              @keyup.enter="sendMessage"
                              placeholder="Введите сообщение..."
                              rows="2"></textarea>
+                    <input type="file" 
+                           ref="fileInput" 
+                           @change="handleFileUpload" 
+                           style="display: none"
+                           accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx,.txt">
+                    <button @click="triggerFileUpload" 
+                            class="btn btn-attach" 
+                            title="Прикрепить файл">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
                     <button @click="sendMessage" 
-                            :disabled="!newMessage.trim()"
+                            :disabled="!newMessage.trim() && !selectedFile"
                             class="btn btn--primary">
                         Отправить
                     </button>
+                </div>
+
+                <!-- Модальное окно для просмотра изображений -->
+                <div v-if="showImageModal" class="image-modal" @click="closeImageModal">
+                    <img :src="selectedImage" @click.stop>
                 </div>
             </div>
         </div>

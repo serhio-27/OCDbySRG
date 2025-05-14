@@ -63,13 +63,13 @@ $appointments = $stmt->fetchAll();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Личный кабинет | ЦРБ Карасук Онлайн</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="styles/settings.css">
     <link rel="stylesheet" href="styles/pages/user.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="styles/modal.css">
     <link rel="stylesheet" href="styles/consultation.css">
     <link rel="stylesheet" href="styles/accessibility.css">
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <style>
         .modal-content {
             max-width: 600px;
@@ -162,12 +162,11 @@ $appointments = $stmt->fetchAll();
                 </form>
             </div>
 
-            <!-- Правая колонка - Список врачей -->
+   <!-- Правая колонка - Список врачей -->
 <div class="profile-section">
     <h2>Доступные врачи</h2>
-    <div class="doctors-list">
-        <?php $visibleDoctors = array_slice($doctors, 0, 3); ?>
-        <?php foreach ($visibleDoctors as $doctor): ?>
+    <div class="doctors-list scrollable">
+        <?php foreach ($doctors as $doctor): ?>
         <div class="doctor-card">
             <h3><?= htmlspecialchars($doctor['surname'] . ' ' . $doctor['name'] . ' ' . $doctor['patronymic']) ?></h3>
             <p class="specialization"><?= htmlspecialchars($doctor['specialization']) ?></p>
@@ -177,63 +176,85 @@ $appointments = $stmt->fetchAll();
             </button>
         </div>
         <?php endforeach; ?>
-        <button class="btn btn--primary" onclick="showAllDoctors()">Показать всех</button>
     </div>
 </div>
 
-            <!-- После блока doctors-list -->
-            <div class="profile-section">
-                <h2>История приёмов</h2>
+            <!-- Текущие и запланированные приёмы -->
+            <div class="appointments-section">
+                <h2>Текущие и запланированные приёмы</h2>
                 <div class="appointments-list">
-                    <?php if (empty($appointments)): ?>
-                        <p class="no-data">История приёмов пуста</p>
-                    <?php else: ?>
-                        <?php foreach ($appointments as $appointment): ?>
+                    <?php foreach ($appointments as $appointment): ?>
+                        <?php if ($appointment['status'] !== 'completed'): ?>
                             <div class="appointment-card">
-                                <div class="appointment-header">
-                                    <div class="appointment-date">
-                                        <i class="far fa-calendar-alt"></i>
-                                        <?= date('d.m.Y', strtotime($appointment['appointment_date'])) ?>
-                                        <i class="far fa-clock"></i>
-                                        <?= date('H:i', strtotime($appointment['appointment_time'])) ?>
+                                <div class="appointment-info">
+                                    <div class="date-time">
+                                        <span class="date"><?= date('d.m.Y', strtotime($appointment['appointment_date'])) ?></span>
+                                        <span class="time"><?= date('H:i', strtotime($appointment['appointment_time'])) ?></span>
                                     </div>
-                                    <span class="appointment-status status-<?= strtolower($appointment['status']) ?>">
-                                        <?php
-                                        $statusText = [
-                                            'pending' => 'Ожидает подтверждения',
-                                            'confirmed' => 'Подтверждён',
-                                            'completed' => 'Завершён',
-                                            'cancelled' => 'Отменён'
-                                        ];
-                                        echo $statusText[$appointment['status']] ?? $appointment['status'];
-                                        ?>
-                                    </span>
-                                </div>
-                                <div class="appointment-doctor">
-                                    <h4>Врач:</h4>
-                                    <p><?= htmlspecialchars($appointment['doctor_surname'] . ' ' . 
-                                                          $appointment['doctor_name'] . ' ' . 
-                                                          $appointment['doctor_patronymic']) ?></p>
-                                    <p class="specialization"><?= htmlspecialchars($appointment['specialization']) ?></p>
-                                </div>
-                                <?php if (!empty($appointment['complaint'])): ?>
                                     <div class="appointment-details">
-                                        <div class="complaint">
-                                            <h4>Жалобы:</h4>
-                                            <p><?= htmlspecialchars($appointment['complaint']) ?></p>
+                                        <div class="patient-info">
+                                            <h3>Врач:</h3>
+                                            <p><?= htmlspecialchars($appointment['doctor_surname'] . ' ' . $appointment['doctor_name']) ?></p>
+                                            <p class="specialization"><?= htmlspecialchars($appointment['specialization']) ?></p>
+                                        </div>
+                                        <?php if (!empty($appointment['complaint'])): ?>
+                                            <div class="complaints">
+                                                <h3>Жалобы:</h3>
+                                                <p><?= htmlspecialchars($appointment['complaint']) ?></p>
+                                            </div>
+                                        <?php endif; ?>
+                                        <div class="status">
+                                            <span class="badge <?= $appointment['status'] === 'confirmed' ? 'confirmed' : 'pending' ?>">
+                                                <?= $appointment['status'] === 'confirmed' ? 'Подтверждён' : 'Ожидает подтверждения' ?>
+                                            </span>
                                         </div>
                                     </div>
-                                <?php endif; ?>
+                                </div>
                                 <?php if ($appointment['status'] === 'confirmed'): ?>
                                     <div class="appointment-actions">
                                         <button class="btn btn--primary" onclick="startConsultation(<?= $appointment['id'] ?>)">
-                                            Открыть чат с врачом
+                                            Открыть чат
                                         </button>
                                     </div>
                                 <?php endif; ?>
                             </div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- История приёмов -->
+            <div class="appointments-section">
+                <h2>История приёмов</h2>
+                <div class="appointments-list history">
+                    <?php foreach ($appointments as $appointment): ?>
+                        <?php if ($appointment['status'] === 'completed'): ?>
+                            <div class="appointment-card completed">
+                                <div class="appointment-info">
+                                    <div class="date-time">
+                                        <span class="date"><?= date('d.m.Y', strtotime($appointment['appointment_date'])) ?></span>
+                                        <span class="time"><?= date('H:i', strtotime($appointment['appointment_time'])) ?></span>
+                                    </div>
+                                    <div class="appointment-details">
+                                        <div class="patient-info">
+                                            <h3>Врач:</h3>
+                                            <p><?= htmlspecialchars($appointment['doctor_surname'] . ' ' . $appointment['doctor_name']) ?></p>
+                                            <p class="specialization"><?= htmlspecialchars($appointment['specialization']) ?></p>
+                                        </div>
+                                        <?php if (!empty($appointment['complaint'])): ?>
+                                            <div class="complaints">
+                                                <h3>Жалобы:</h3>
+                                                <p><?= htmlspecialchars($appointment['complaint']) ?></p>
+                                            </div>
+                                        <?php endif; ?>
+                                        <div class="status">
+                                            <span class="badge completed">Завершён</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
                 </div>
             </div>
 
@@ -302,124 +323,6 @@ $appointments = $stmt->fetchAll();
         </div>
     </main>
 
-    <!-- Подвал -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer__grid">
-                <div class="footer__column">
-                    <h4>О ЦРБ</h4>
-                    <ul>
-                        <li><a href="/about">О нас</a></li>
-                        <li><a href="/doctors">Врачи</a></li>
-                        <li><a href="/reviews">Отзывы</a></li>
-                        <li><a href="/contacts">Контакты</a></li>
-                    </ul>
-                </div>
-                <div class="footer__column">
-                    <h4>Пациентам</h4>
-                    <ul>
-                        <li><a href="/how-it-works">Как это работает</a></li>
-                        <li><a href="/faq">Частые вопросы</a></li>
-                        <li><a href="/blog">Блог о здоровье</a></li>
-                    </ul>
-                </div>
-                <div class="footer__column">
-                    <h4>Документы</h4>
-                    <ul>
-                        <li><a href="/privacy">Политика конфиденциальности</a></li>
-                        <li><a href="/terms">Пользовательское соглашение</a></li>
-                        <li><a href="/license">Лицензии</a></li>
-                    </ul>
-                </div>
-                <div class="footer__column">
-                    <h4>Контакты</h4>
-                    <ul>
-                        <li><a href="tel:+79001234567">+7 (900) 123-45-67</a></li>
-                        <li><a href="mailto:CRBKarasukOnline@mail.ru">Email: CRBKarasukOnline@mail.ru</a></li>
-                        <li>
-                            <div class="social-links">
-                                <a href="#" class="social-link"><i class="fab fa-vk" aria-hidden="true"></i></a>
-                                <a href="#" class="social-link"><i class="fab fa-telegram"></i></a>
-                                <a href="#" class="social-link"><i class="fab fa-whatsapp"></i></a>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            <div class="footer__bottom">
-                <p>&copy; <?php echo date('Y'); ?> Карасукская ЦРБ. Все права защищены.</p>
-            </div>
-        </div>
-    </footer>
-
-
-    <!-- Модальное окно с информацией о враче -->
-    <div id="doctorModal" class="modal">
-        <div class="modal-content">
-            <span class="close" title="Закрыть">&times;</span>
-            <div v-if="doctor">
-                <div class="doctor-info">
-                    <h2>{{ doctor.full_name }}</h2>
-                    <p class="specialization">{{ doctor.specialization }}</p>
-                    <p class="contacts">
-                        <span v-if="doctor.phone"><i class="fas fa-phone"></i> {{ doctor.phone }}</span>
-                        <span v-if="doctor.email"><i class="fas fa-envelope"></i> {{ doctor.email }}</span>
-                    </p>
-                    
-                    <div class="appointment-form">
-                        <h3>Записаться на приём</h3>
-                        <div class="calendar">
-                            <div class="calendar-header">
-                                <button @click="prevMonth">&lt;</button>
-                                <span>{{ currentMonthYear }}</span>
-                                <button @click="nextMonth">&gt;</button>
-                            </div>
-                            <div class="calendar-grid">
-                                <div v-for="day in daysOfWeek" :key="day" class="calendar-day-header">
-                                    {{ day }}
-                                </div>
-                                <div v-for="date in calendarDays" 
-                                     :key="date.date"
-                                     :class="['calendar-day', {
-                                         'disabled': !isDateAvailable(date.date),
-                                         'selected': selectedDate === date.date
-                                     }]"
-                                     @click="selectDate(date.date)">
-                                    {{ date.dayOfMonth }}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div v-if="selectedDate" class="time-slots">
-                            <h4>Доступное время:</h4>
-                            <div class="time-grid">
-                                <button v-for="time in availableTimeSlots"
-                                        :key="time"
-                                        :class="['time-slot', { selected: selectedTime === time }]"
-                                        @click="selectTime(time)">
-                                    {{ time }}
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div v-if="selectedDate && selectedTime" class="complaint-section">
-                            <h4>Опишите ваши симптомы:</h4>
-                            <textarea v-model="complaint" 
-                                     placeholder="Кратко опишите причину обращения"
-                                     rows="4"></textarea>
-                        </div>
-                        
-                        <button class="btn btn--primary" 
-                                @click="submitAppointment"
-                                :disabled="!canSubmit">
-                            Записаться на приём
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Модальное окно для консультации -->
     <div id="consultationModal" class="modal">
         <div class="modal-content consultation-modal">
@@ -438,12 +341,29 @@ $appointments = $stmt->fetchAll();
                         Начните консультацию
                     </div>
                     <div v-for="message in messages" :key="message.id" 
-                         :class="['message', message.sender_id === currentUserId ? 'message-own' : 'message-other']">
+                         :class="['message', isOwnMessage(message) ? 'message-own' : 'message-other']">
                         <div class="message-header">
                             <span class="message-sender">{{ message.surname }} {{ message.name }}</span>
                             <span class="message-time">{{ formatTime(message.created_at) }}</span>
                         </div>
                         <div class="message-content">{{ message.message }}</div>
+                        <!-- Отображение файла -->
+                        <div v-if="message.file_path" class="message-file">
+                            <!-- Для изображений -->
+                            <img v-if="isImage(message.file_path)" 
+                                 :src="message.file_path" 
+                                 class="message-image"
+                                 @click="openImage(message.file_path)"
+                                 :alt="message.file_original_name">
+                            <!-- Для других файлов -->
+                            <a v-else 
+                               :href="message.file_path" 
+                               class="file-link" 
+                               download>
+                                <i :class="getFileIcon(message.file_type)"></i>
+                                <span>{{ message.file_original_name || getFileName(message.file_path) }}</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
                 
@@ -452,25 +372,26 @@ $appointments = $stmt->fetchAll();
                              @keyup.enter="sendMessage"
                              placeholder="Введите сообщение..."
                              rows="2"></textarea>
-                    
-                    <!-- Добавляем скрытый input для файла -->
                     <input type="file" 
                            ref="fileInput" 
                            @change="handleFileUpload" 
                            style="display: none"
-                           accept="image/*,.pdf,.doc,.docx">
-                    
-                    <!-- Добавляем кнопку загрузки файла -->
+                           accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx,.txt">
                     <button @click="triggerFileUpload" 
-                            class="btn btn--primary btn-attach">
+                            class="btn btn-attach" 
+                            title="Прикрепить файл">
                         <i class="fas fa-paperclip"></i>
                     </button>
-                    
                     <button @click="sendMessage" 
                             :disabled="!canSendMessage"
                             class="btn btn--primary">
                         Отправить
                     </button>
+                </div>
+
+                <!-- Модальное окно для просмотра изображений -->
+                <div v-if="showImageModal" class="image-modal" @click="closeImageModal">
+                    <img :src="selectedImage" @click.stop>
                 </div>
             </div>
         </div>
@@ -550,24 +471,73 @@ $appointments = $stmt->fetchAll();
     <script>
         window.currentUserId = <?= (int)$user['id'] ?>;
     </script>
-    <script src="js/modal.js"></script>
-    <script src="js/patient-consultation.js"></script>
-    <script src="js/accessibility.js"></script>
-    <script>
-        //показ всех врачей
-        function showAllDoctors() {
-            const doctorsList = document.querySelector('.doctors-list');
-            doctorsList.innerHTML = `<?php foreach ($doctors as $doctor): ?>
-                <div class="doctor-card">
-                    <h3><?= htmlspecialchars($doctor['surname'] . ' ' . $doctor['name'] . ' ' . $doctor['patronymic']) ?></h3>
-                    <p class="specialization"><?= htmlspecialchars($doctor['specialization']) ?></p>
-                    <button class="btn btn--secondary" 
-                            onclick="showDoctorInfo(<?= $doctor['id'] ?>)">
-                        Подробнее
-                    </button>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="js/modal.js" defer></script>
+    <script src="js/patient-consultation.js" defer></script>
+    <script src="js/accessibility.js" defer></script>
+
+    <!-- Модальное окно для записи к врачу -->
+    <div id="doctorModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div v-if="doctor" class="doctor-info">
+                <h2>Запись на приём</h2>
+                <h3>{{ doctor.surname }} {{ doctor.name }} {{ doctor.patronymic }}</h3>
+                <p class="specialization">{{ doctor.specialization }}</p>
+            </div>
+            
+            <div v-if="doctor" class="calendar-section">
+                <div class="calendar-header">
+                    <button @click="prevMonth" class="btn btn--secondary">&lt;</button>
+                    <h3>{{ currentMonthYear }}</h3>
+                    <button @click="nextMonth" class="btn btn--secondary">&gt;</button>
                 </div>
-                <?php endforeach; ?>`;
-        }
-    </script>
+                
+                <div class="calendar">
+                    <div class="weekdays">
+                        <div v-for="day in daysOfWeek" :key="day" class="weekday">{{ day }}</div>
+                    </div>
+                    <div class="days">
+                        <div v-for="day in calendarDays" 
+                             :key="day.date"
+                             :class="['day', {
+                                 'selected': day.date === selectedDate,
+                                 'available': isDateAvailable(day.date),
+                                 'unavailable': !isDateAvailable(day.date)
+                             }]"
+                             @click="selectDate(day.date)">
+                            {{ day.dayOfMonth }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div v-if="selectedDate" class="time-slots">
+                    <h4>Доступное время:</h4>
+                    <div class="time-slots-grid">
+                        <button v-for="time in availableTimeSlots"
+                                :key="time"
+                                :class="['time-slot', { selected: time === selectedTime }]"
+                                @click="selectTime(time)">
+                            {{ time }}
+                        </button>
+                    </div>
+                </div>
+                
+                <div v-if="selectedTime" class="complaint-section">
+                    <h4>Опишите жалобы:</h4>
+                    <textarea v-model="complaint" 
+                             rows="4" 
+                             placeholder="Опишите ваши жалобы..."></textarea>
+                </div>
+                
+                <button v-if="selectedTime" 
+                        class="btn btn--primary submit-btn" 
+                        @click="submitAppointment"
+                        :disabled="!canSubmit">
+                    Записаться на приём
+                </button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

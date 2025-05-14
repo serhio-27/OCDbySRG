@@ -114,10 +114,36 @@ body {
     gap: 20px;
 }
 
+.doctors-list.scrollable {
+    max-height: 400px; /* высота для отображения примерно 3 карточек */
+    overflow-y: auto;
+    padding-right: 10px; /* отступ для скроллбара */
+}
+
+.doctors-list.scrollable::-webkit-scrollbar {
+    width: 6px;
+}
+
+.doctors-list.scrollable::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.doctors-list.scrollable::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.doctors-list.scrollable::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
 .doctor-card {
-    background: #f9f9f9;
-    padding: 20px;
-    border-radius: var(--border-radius);
+    margin-bottom: 15px;
+    padding: 15px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* Подвал */

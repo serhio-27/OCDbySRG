@@ -12,11 +12,11 @@
 
 .consultation-modal {
     background-color: #fff;
-    margin: 2.5% auto 4% auto;
+    margin: 2.5% auto;
     padding: 20px;
     width: 90%;
     max-width: 800px;
-    height: 70vh;
+    height: 80vh;
     border-radius: 8px;
     position: relative;
     display: flex;
@@ -42,9 +42,10 @@
 .consultation-header {
     padding: 15px;
     border-bottom: 1px solid #ddd;
+    flex-shrink: 0;
 }
 
-.patient-info {
+.doctor-info {
     margin-top: 10px;
     font-size: 14px;
 }
@@ -52,46 +53,84 @@
 /* Стили для контейнера сообщений */
 .chat-container {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
     padding: 20px;
     background-color: #f5f5f5;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: calc(80vh - 200px);
+}
+
+/* Стили для скроллбара (WebKit browsers) */
+.chat-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.chat-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.chat-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Для Firefox */
+.chat-container {
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1;
 }
 
 /* Общие стили для сообщений */
 .message {
     max-width: 70%;
-    margin: 10px 0;
+    margin: 4px 0;
     padding: 10px 16px;
     border-radius: 16px;
-    clear: both;
     word-break: break-word;
     position: relative;
     box-sizing: border-box;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Стили для сообщений чата: свои справа, чужие слева */
 .message-own {
-    background: #d0eaf7;
+    background: #0084ff;
+    color: white;
     margin-left: auto;
-    margin-right: 0;
-    text-align: right;
     border-bottom-right-radius: 4px;
-    border-bottom-left-radius: 16px;
 }
 
 .message-other {
-    background: #ababab;
+    background: #e9e9e9;
+    color: black;
     margin-right: auto;
-    margin-left: 0;
-    text-align: left;
     border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 16px;
 }
 
 /* Стили для заголовка сообщения */
 .message-header {
     font-size: 12px;
     margin-bottom: 4px;
+    opacity: 0.8;
 }
 
 .message-own .message-header {
@@ -121,12 +160,14 @@
     word-wrap: break-word;
 }
 
+/* Стили для поля ввода */
 .chat-input {
     padding: 15px;
     border-top: 1px solid #ddd;
     display: flex;
     gap: 10px;
     background-color: white;
+    flex-shrink: 0;
 }
 
 .chat-input textarea {
@@ -135,44 +176,20 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     resize: none;
+    min-height: 40px;
+    max-height: 100px;
+    font-size: 14px;
 }
 
 .chat-input button {
     padding: 10px 20px;
-}
-
-/* Стили для кнопки прикрепления файла */
-.btn-attach {
-    padding: 10px;
-    min-width: 44px;
-}
-
-.btn-attach i {
-    font-size: 1.2em;
+    height: fit-content;
+    align-self: flex-end;
 }
 
 /* Стили для сообщения с файлом */
 .message-file {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 5px;
-}
-
-.message-file i {
-    font-size: 1.2em;
-}
-
-.message-file a {
-    color: inherit;
-    text-decoration: underline;
-}
-
-/* Стили для пустого чата */
-.no-messages {
-    text-align: center;
-    color: #666;
-    padding: 20px;
+    margin-top: 8px;
 }
 
 /* Стили для изображений в сообщениях */
@@ -180,7 +197,6 @@
     max-width: 200px;
     max-height: 200px;
     border-radius: 8px;
-    margin-top: 8px;
     cursor: pointer;
     transition: transform 0.2s;
 }
@@ -194,19 +210,50 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-top: 8px;
-    padding: 8px;
+    padding: 8px 12px;
     background: rgba(0, 0, 0, 0.05);
-    border-radius: 4px;
+    border-radius: 8px;
     text-decoration: none;
+    color: inherit;
+    transition: background-color 0.2s;
 }
 
 .message-own .file-link {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.file-link:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.message-own .file-link:hover {
+    background: rgba(255, 255, 255, 0.3);
 }
 
 .file-link i {
     font-size: 1.2em;
+}
+
+.file-link span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 200px;
+}
+
+/* Кнопка прикрепления файла */
+.btn-attach {
+    background: none;
+    border: none;
+    color: #0084ff;
+    padding: 8px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.btn-attach:hover {
+    color: #0066cc;
 }
 
 /* Модальное окно для просмотра изображений */
@@ -221,10 +268,30 @@
     justify-content: center;
     align-items: center;
     z-index: 2000;
+    cursor: pointer;
 }
 
 .image-modal img {
     max-width: 90%;
     max-height: 90vh;
     object-fit: contain;
+    cursor: default;
+}
+
+/* Индикатор загрузки файла */
+.file-upload-indicator {
+    font-size: 12px;
+    color: #666;
+    margin-left: 8px;
+}
+
+.message-own .file-upload-indicator {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Стили для пустого чата */
+.no-messages {
+    text-align: center;
+    color: #666;
+    padding: 20px;
 } 

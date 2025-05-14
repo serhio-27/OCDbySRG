@@ -1,0 +1,207 @@
+.appointments-section {
+    margin-bottom: 2rem;
+}
+
+.appointments-section h2 {
+    color: #00bcd4;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #00bcd4;
+}
+
+.appointments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.appointment-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+}
+
+.appointment-card.completed {
+    background: #f8f9fa;
+}
+
+.appointment-info {
+    display: flex;
+    gap: 2rem;
+}
+
+.date-time {
+    min-width: 150px;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+    align-self: flex-start;
+}
+
+.date {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.time {
+    font-size: 1.1rem;
+    color: #666;
+    display: block;
+}
+
+.appointment-details {
+    flex: 1;
+}
+
+.patient-info {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.patient-info h3 {
+    color: #2c3e50;
+    margin-bottom: 0.8rem;
+    font-size: 1.1rem;
+    border-bottom: 2px solid #00bcd4;
+    padding-bottom: 0.5rem;
+    display: inline-block;
+}
+
+.patient-info p {
+    margin: 0.5rem 0;
+    color: #333;
+}
+
+.specialization {
+    color: #666;
+    font-style: italic;
+}
+
+.complaints {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.complaints h3 {
+    color: #2c3e50;
+    margin-bottom: 0.8rem;
+    font-size: 1.1rem;
+    border-bottom: 2px solid #ff5722;
+    padding-bottom: 0.5rem;
+    display: inline-block;
+}
+
+.complaints p {
+    color: #666;
+    line-height: 1.5;
+}
+
+.status {
+    text-align: right;
+    margin-bottom: 1rem;
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.badge.pending {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+.badge.confirmed {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.badge.completed {
+    background: #e2e3e5;
+    color: #383d41;
+    border: 1px solid #d6d8db;
+}
+
+.appointment-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    justify-content: flex-end;
+    border-top: 1px solid #eee;
+}
+
+.btn {
+    padding: 0.7rem 1.5rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+}
+
+.btn--primary {
+    background: #00bcd4;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 188, 212, 0.2);
+}
+
+.btn--primary:hover {
+    background: #00acc1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 188, 212, 0.3);
+}
+
+.btn--secondary {
+    background: #f5f5f5;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.btn--secondary:hover {
+    background: #e0e0e0;
+    transform: translateY(-1px);
+}
+
+.history .appointment-card {
+    opacity: 0.85;
+    transition: opacity 0.2s ease;
+}
+
+.history .appointment-card:hover {
+    opacity: 1;
+}
+
+/* Добавляем отступы между секциями */
+.profile-section + .profile-section {
+    margin-top: 2rem;
+}
+
+/* Стили для заголовков секций */
+.profile-section h2 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #00bcd4;
+    display: inline-block;
+} 
