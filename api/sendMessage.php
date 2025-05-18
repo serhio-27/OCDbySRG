@@ -32,7 +32,8 @@ if ($isMultipart || isset($_FILES['file'])) {
             'application/pdf', 
             'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'text/plain'
+            'text/plain',
+            'application/zip', 'application/x-zip-compressed'
         ];
         
         $finfo = finfo_open(FILEINFO_MIME_TYPE);

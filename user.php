@@ -96,6 +96,55 @@ $appointments = $stmt->fetchAll();
             border-radius: 4px;
             resize: vertical;
         }
+
+        /* Стили для уведомления */
+        .appointment-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px 20px;
+            z-index: 1000;
+            display: none;
+            max-width: 300px;
+            border-left: 4px solid #4CAF50;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .appointment-notification.show {
+            display: block;
+        }
+
+        .appointment-notification h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+
+        .appointment-notification p {
+            margin: 5px 0;
+            color: #666;
+        }
+
+        .appointment-notification .close-notification {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -376,7 +425,7 @@ $appointments = $stmt->fetchAll();
                            ref="fileInput" 
                            @change="handleFileUpload" 
                            style="display: none"
-                           accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx,.txt">
+                           accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx,.txt,.zip">
                     <button @click="triggerFileUpload" 
                             class="btn btn-attach" 
                             title="Прикрепить файл">
@@ -475,6 +524,20 @@ $appointments = $stmt->fetchAll();
     <script src="js/modal.js" defer></script>
     <script src="js/patient-consultation.js" defer></script>
     <script src="js/accessibility.js" defer></script>
+    <script src="js/appointment-notification.js" defer></script>
+
+    <script>
+        // Передаем данные о приёмах в глобальную переменную для использования в appointment-notification.js
+        window.appointments = <?= json_encode($appointments) ?>;
+    </script>
+
+    <!-- Уведомление о предстоящем приёме -->
+    <div id="appointmentNotification" class="appointment-notification">
+        <span class="close-notification">&times;</span>
+        <h4>Напоминание о приёме</h4>
+        <p id="notificationDoctor"></p>
+        <p id="notificationTime"></p>
+    </div>
 
     <!-- Модальное окно для записи к врачу -->
     <div id="doctorModal" class="modal">
