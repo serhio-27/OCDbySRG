@@ -27,7 +27,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 bookedSlots: [],
                 daysOfWeek: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
                 timeSlots: ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', 
-                           '14:00', '14:30', '15:00', '15:30', '16:00', '16:30']
+                           '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', 
+                           '17:00', '17:30', '18:00', '18:30']
             }
         },
         computed: {
@@ -56,8 +57,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Добавляем дни месяца
                 for (let i = 1; i <= lastDay.getDate(); i++) {
                     const date = new Date(year, month, i);
+                    const yyyy = date.getFullYear();
+                    const mm = String(date.getMonth() + 1).padStart(2, '0');
+                    const dd = String(date.getDate()).padStart(2, '0');
                     days.push({
-                        date: date.toISOString().split('T')[0],
+                        date: `${yyyy}-${mm}-${dd}`,
                         dayOfMonth: i
                     });
                 }
@@ -118,8 +122,11 @@ document.addEventListener('DOMContentLoaded', function() {
             isDateAvailable(date) {
                 if (!date) return false;
                 const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                return new Date(date) >= today;
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                const todayStr = `${yyyy}-${mm}-${dd}`;
+                return date >= todayStr;
             },
             selectDate(date) {
                 if (this.isDateAvailable(date)) {

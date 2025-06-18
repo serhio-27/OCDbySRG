@@ -189,7 +189,7 @@ $completedAppointments = $stmt->fetchAll();
                                 <div class="appointment-info">
                                     <div class="date-time">
                                         <span class="date"><?= date('d.m.Y', strtotime($appointment['appointment_date'])) ?></span>
-                                        <span class="time"><?= date('H:i', strtotime($appointment['appointment_date'])) ?></span>
+                                        <span class="time"><?= date('H:i', strtotime($appointment['appointment_time'])) ?></span>
                                     </div>
                                     <div class="patient-info">
                                         <h3>Пациент:</h3>
@@ -213,6 +213,12 @@ $completedAppointments = $stmt->fetchAll();
                                         </button>
                                         <button class="btn btn--secondary" onclick="completeAppointment(<?= $appointment['id'] ?>)">
                                             Завершить приём
+                                        </button>
+                                    </div>
+                                <?php elseif ($appointment['status'] === 'pending'): ?>
+                                    <div class="appointment-actions">
+                                        <button class="btn btn--primary" onclick="confirmAppointment(<?= $appointment['id'] ?>)">
+                                            Подтвердить
                                         </button>
                                     </div>
                                 <?php endif; ?>
@@ -239,7 +245,7 @@ $completedAppointments = $stmt->fetchAll();
                                 <div class="appointment-info">
                                     <div class="date-time">
                                         <span class="date"><?= date('d.m.Y', strtotime($appointment['appointment_date'])) ?></span>
-                                        <span class="time"><?= date('H:i', strtotime($appointment['appointment_date'])) ?></span>
+                                        <span class="time"><?= date('H:i', strtotime($appointment['appointment_time'])) ?></span>
                                     </div>
                                     <div class="patient-info">
                                         <h3>Пациент:</h3>
@@ -396,6 +402,28 @@ $completedAppointments = $stmt->fetchAll();
                           location.reload();
                       } else {
                           alert('Ошибка при завершении приёма');
+                      }
+                  });
+            }
+        }
+
+        function confirmAppointment(appointmentId) {
+            if (confirm('Подтвердить приём?')) {
+                fetch('api/updateAppointmentStatus.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        appointment_id: appointmentId,
+                        status: 'confirmed'
+                    })
+                }).then(response => response.json())
+                  .then(data => {
+                      if (data.success) {
+                          location.reload();
+                      } else {
+                          alert('Ошибка при подтверждении приёма');
                       }
                   });
             }
